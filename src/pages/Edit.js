@@ -7,7 +7,7 @@
  */
 
 import React, {Component} from 'react';
-import {Platform, StyleSheet, Text, View, TextInput, Image, TouchableOpacity, FlatList, Dimensions, Keyboard} from 'react-native';
+import {Platform, NetInfo, StyleSheet, Text, View, TextInput, Image, TouchableOpacity, FlatList, Dimensions, Keyboard} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import DatePicker from 'react-native-datepicker';
 import {Actions} from 'react-native-router-flux';
@@ -68,59 +68,65 @@ export default class Edit extends Component<Props> {
   edit(){
      Keyboard.dismiss();
     // var days =  Math.floor(( Date.parse(this.state.leaveto) - Date.parse(this.state.leavefrom) ) / 86400000);
+    NetInfo.isConnected.fetch().then(isConnected => {
+      if (isConnected == true) {
+                this.setState({
+              // noofdays: days
+            },()=>{
+              // console.log('datasending:'+'empid:'+this.state.empid+':::'+'empname:' +'this.state.empname'+':::'+'leavefrom:'+this.state.leavefrom+':::'+'leaveid:'+ this.state.leaveid+':::'+'leaveto:'+ this.state.leaveto+':::'+'noofdays:'+ this.state.noofdays);
+            fetch('http://pinakininfo.co.in/Turipati/Admin/data/backendService.php?action=saveUpdateEmployeeData',{
+              method: 'POST',
+              headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                    empid: this.props.item.empid,
+                    empname: this.props.item.empname,
+                    leavestaken: this.props.item.leavestaken,
+                    mobileno: this.state.mobileno,
+                    monthend: this.state.monthend,
+                    monthst: this.state.monthst,
+                    noofdaysworked: this.props.item.noofdaysworked,
+                    salary: this.state.salary,
+                    salaryforthemonth: this.props.item.salaryforthemonth,
+                    salarypaiddate: this.props.item.salarypaiddate,
+                    totalDaysinMonth: this.props.item.totalDaysinMonth,
+                    totsalary: this.props.item.totalDaysinMonth,
 
-    this.setState({
-      // noofdays: days
-    },()=>{
-      // console.log('datasending:'+'empid:'+this.state.empid+':::'+'empname:' +'this.state.empname'+':::'+'leavefrom:'+this.state.leavefrom+':::'+'leaveid:'+ this.state.leaveid+':::'+'leaveto:'+ this.state.leaveto+':::'+'noofdays:'+ this.state.noofdays);
-    fetch('http://pinakininfo.co.in/Turipati/Admin/data/backendService.php?action=saveUpdateEmployeeData',{
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-            empid: this.props.item.empid,
-            empname: this.props.item.empname,
-            leavestaken: this.props.item.leavestaken,
-            mobileno: this.state.mobileno,
-            monthend: this.state.monthend,
-            monthst: this.state.monthst,
-            noofdaysworked: this.props.item.noofdaysworked,
-            salary: this.state.salary,
-            salaryforthemonth: this.props.item.salaryforthemonth,
-            salarypaiddate: this.props.item.salarypaiddate,
-            totalDaysinMonth: this.props.item.totalDaysinMonth,
-            totsalary: this.props.item.totalDaysinMonth,
-
-            doj: this.state.doj,
-            advancetaken: this.props.item.advancetaken,
-            empAdvanceArray:this.props.item.empAdvanceArray,
-            empLeaveArray:this.props.item.empLeaveArray,
-            debit:this.props.item.debit,
-            dateDiff:this.props.item.dateDiff
-            }),
-    })
-      .then((response) => response.json())
-      .then((responseJson) => {
-        console.log('responseJson>>>>>.'+JSON.stringify(responseJson.responsecode));
-        if (responseJson.responsecode=='200') {
-            console.log('Added successfully');
-            Actions.dashboard();
-        }else{
-          errorMsg='Unable to add data';
-          this.showAlert();
-           console.log('Not able to Add');
-        }
-        
-      })
-      .catch((error) =>{
+                    doj: this.state.doj,
+                    advancetaken: this.props.item.advancetaken,
+                    empAdvanceArray:this.props.item.empAdvanceArray,
+                    empLeaveArray:this.props.item.empLeaveArray,
+                    debit:this.props.item.debit,
+                    dateDiff:this.props.item.dateDiff
+                    }),
+            })
+              .then((response) => response.json())
+              .then((responseJson) => {
+                console.log('responseJson>>>>>.'+JSON.stringify(responseJson.responsecode));
+                if (responseJson.responsecode=='200') {
+                    console.log('Added successfully');
+                    Actions.dashboard();
+                }else{
+                  errorMsg='Unable to add data';
+                  this.showAlert();
+                   console.log('Not able to Add');
+                }
+                
+              })
+              .catch((error) =>{
+                errorMsg='No Network';
+                this.showAlert();
+                //console.error(error);
+              });
+            })
+      }else{
         errorMsg='No Network';
         this.showAlert();
-        //console.error(error);
-      });
-    })
-  }
+      }
+  })
+}
 
   validate(){
     if (this.state.doj=='') {

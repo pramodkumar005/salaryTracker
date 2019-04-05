@@ -44,11 +44,11 @@ export default class Login extends Component<Props> {
   componentWillMount(){
     BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
 
-    AsyncStorage.getItem('@MyLogin:key', (err, result) => {
-      console.log('Result>>>>>>>>>>>>>>>'+result);
-      if (result==null) {
-        Actions.login();
-      }else{
+    // AsyncStorage.getItem('@MyLogin:key', (err, result) => {
+    //   console.log('Result>>>>>>>>>>>>>>>'+result);
+    //   if (result==null) {
+    //     Actions.login();
+    //   }else{
             console.log('componentWillMount >>>>>>>>>>>>');
             NetInfo.isConnected.fetch().then(isConnected => {
                   this.setState({
@@ -73,8 +73,8 @@ export default class Login extends Component<Props> {
                 }
               }
             });
-      }
-    });
+    //   }
+    // });
   }
 
   componentWillUnmount() {
@@ -114,46 +114,59 @@ export default class Login extends Component<Props> {
   }
 
   fetchEmployee(){
-     
-    this.setState({
-      refreshing: true
-    },()=>{
-    fetch('http://pinakininfo.co.in/Turipati/Admin/data/backendService.php?action=getAllEmployees')
-      .then((response) => response.json())
-      .then((responseJson) => {
+    NetInfo.isConnected.fetch().then(isConnected => {
+        if (isConnected == true) {
+         console.log('In fetch>>>>>>>>>>>>>>>>>>>>>>');
+        this.setState({
+          refreshing: true
+        },()=>{
+        fetch('http://pinakininfo.co.in/Turipati/Admin/data/backendService.php?action=getAllEmployees')
+          .then((response) => response.json())
+          .then((responseJson) => {
 
-        console.log('responseJson>>>>>.'+JSON.stringify(responseJson.salaryArray));
-         AsyncStorage.setItem('@MyEmployee:key', JSON.stringify(responseJson.salaryArray));
+            console.log('responseJson>>>>>.'+JSON.stringify(responseJson.salaryArray));
+             AsyncStorage.setItem('@MyEmployee:key', JSON.stringify(responseJson.salaryArray));
 
-        if (responseJson.responsecode=='200') {
-            console.log('Added successfully');
+            if (responseJson.responsecode=='200') {
+                console.log('Added successfully...');
+                this.setState({
+                  listData: responseJson.salaryArray,
+                  rawData: responseJson.salaryArray,
+                  refreshing: false
+                  })
+                
+            }else{
+               console.log('Unable to get employee list');
+               errorMsg='Unable to get employee list';
+               this.showAlert();
+                this.setState({
+                  refreshing: false
+                  })
+            }
+          })
+          .catch((error) =>{
+            errorMsg='Unable to get data';
+            this.showAlert();
             this.setState({
-              listData: responseJson.salaryArray,
-              rawData: responseJson.salaryArray,
               refreshing: false
               })
-            
-        }else{
-           console.log('Unable to get employee list');
-           errorMsg='Unable to get employee list';
-           this.showAlert();
-        }
-
-        
-
-      })
-      .catch((error) =>{
-        errorMsg='No Network';
-        this.showAlert();
-        this.setState({
-          refreshing: false
+          });
+        } )
+        }else {
+          console.log('In else statement');
+          errorMsg='No Network';
+          this.showAlert();
+          this.setState({
+                refreshing: false
           })
-      });
-    } )
-  }
+        }
+  })
+}
 
   deleteEmployee(item){
-    fetch('http://pinakininfo.co.in/Turipati/Admin/data/backendService.php?action=deleteEmployee&empid='+item.empid,{
+     NetInfo.isConnected.fetch().then(isConnected => {
+      if (isConnected == true) {
+        fetch('http://pinakininfo.co.in/Turipati/Admin/data/backendService.php?action=deleteEmployee&empid='+item.empid,{
       method: 'DELETE',
       headers: {
         Accept: 'application/json',
@@ -175,9 +188,16 @@ export default class Login extends Component<Props> {
       })
       .catch((error) =>{
         //console.error(error);
-         errorMsg='No Network';
+         errorMsg='Unable to delete';
           this.showAlert();
       });
+
+      }else{
+        console.log('In else statement');
+          errorMsg='No Network';
+          this.showAlert();
+      }
+    })
   }
 
   setSearchText(event) {
@@ -203,6 +223,11 @@ filterNotes(searchText, notes) {
         return note.search(text) !== -1;
       });
     }
+
+
+_onRefresh = () => {
+    this.fetchEmployee();
+  }
 
 
  _keyExtractor = (item, index) => item.empid;
@@ -239,6 +264,10 @@ filterNotes(searchText, notes) {
         <View style={{flexDirection:'row'}}>
           <Text>Advance: </Text>
           <Text>{item.advancetaken}</Text>
+        </View>
+        <View style={{flexDirection:'row'}}>
+          <Text>Salary Cycle: </Text>
+          <Text>{item.monthst} - {item.monthend}</Text>
         </View>
         <View style={{flexDirection:'row'}}>
           <Text>To be paid: </Text>
@@ -284,13 +313,13 @@ filterNotes(searchText, notes) {
           </TouchableOpacity>
         </View>
        <FlatList
-       showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
             refreshing={this.state.refreshing}
-            onRefresh={()=>{()=>{this.fetchEmployee()}}}
+            onRefresh={this._onRefresh}
           />
         }
+       showsVerticalScrollIndicator={false}
         data={this.state.listData}
         style={{width:'90%'}}
         extraData={this.state}

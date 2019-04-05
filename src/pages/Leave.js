@@ -7,7 +7,7 @@
  */
 
 import React, {Component} from 'react';
-import {Platform, StyleSheet, Text, View, TextInput, Image, TouchableOpacity, FlatList, Dimensions} from 'react-native';
+import {Platform, NetInfo, StyleSheet, Text, View, TextInput, Image, TouchableOpacity, FlatList, Dimensions} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import DatePicker from 'react-native-datepicker';
 import {Actions} from 'react-native-router-flux';
@@ -52,46 +52,53 @@ export default class Advance extends Component<Props> {
 
 
   saveLeave(){
-    var days =  Math.floor(( Date.parse(this.state.leaveto) - Date.parse(this.state.leavefrom) ) / 86400000);
-    this.setState({
-      noofdays: days
-    },()=>{
-      console.log('datasending:'+'empid:'+this.state.empid+':::'+'empname:' +'this.state.empname'+':::'+'leavefrom:'+this.state.leavefrom+':::'+'leaveid:'+ this.state.leaveid+':::'+'leaveto:'+ this.state.leaveto+':::'+'noofdays:'+ this.state.noofdays);
-    fetch('http://pinakininfo.co.in/Turipati/Admin/data/backendService.php?action=saveUpdateEmployeeLeaveData',{
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-            empid: this.state.empid,
-            empname: this.state.empname,
-            leavefrom: this.state.leavefrom,
-            leaveid: this.state.leaveid,
-            leaveto: this.state.leaveto,
-            noofdays: this.state.noofdays,
-            }),
-    })
-      .then((response) => response.json())
-      .then((responseJson) => {
-        console.log('responseJson>>>>>.'+JSON.stringify(responseJson.responsecode));
-        if (responseJson.responsecode=='200') {
-            console.log('Added successfully');
-            Actions.dashboard();
-        }else{
-           console.log('Not able to Add');
-            errorMsg='Unable to add data';
-            this.showAlert();
-        }
-        
-      })
-      .catch((error) =>{
-         errorMsg='No Network';
-        this.showAlert();
-        //console.error(error);
-      });
-    })
-  }
+    NetInfo.isConnected.fetch().then(isConnected => {
+      if (isConnected == true) {
+              var days =  Math.floor(( Date.parse(this.state.leaveto) - Date.parse(this.state.leavefrom) ) / 86400000);
+          this.setState({
+            noofdays: days
+          },()=>{
+            console.log('datasending:'+'empid:'+this.state.empid+':::'+'empname:' +'this.state.empname'+':::'+'leavefrom:'+this.state.leavefrom+':::'+'leaveid:'+ this.state.leaveid+':::'+'leaveto:'+ this.state.leaveto+':::'+'noofdays:'+ this.state.noofdays);
+          fetch('http://pinakininfo.co.in/Turipati/Admin/data/backendService.php?action=saveUpdateEmployeeLeaveData',{
+            method: 'POST',
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                  empid: this.state.empid,
+                  empname: this.state.empname,
+                  leavefrom: this.state.leavefrom,
+                  leaveid: this.state.leaveid,
+                  leaveto: this.state.leaveto,
+                  noofdays: this.state.noofdays,
+                  }),
+          })
+            .then((response) => response.json())
+            .then((responseJson) => {
+              console.log('responseJson>>>>>.'+JSON.stringify(responseJson.responsecode));
+              if (responseJson.responsecode=='200') {
+                  console.log('Added successfully');
+                  Actions.dashboard();
+              }else{
+                 console.log('Not able to Add');
+                  errorMsg='Unable to add data';
+                  this.showAlert();
+              }
+              
+            })
+            .catch((error) =>{
+               errorMsg='No Network';
+              this.showAlert();
+              //console.error(error);
+            });
+          })
+      }else{
+        errorMsg='No Network';
+          this.showAlert();
+      }
+  })
+}
 
  showAlert(){
      showMessage({

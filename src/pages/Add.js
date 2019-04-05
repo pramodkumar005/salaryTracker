@@ -7,7 +7,7 @@
  */
 
 import React, {Component} from 'react';
-import {Platform, StyleSheet, Text, View, TextInput, Image, TouchableOpacity, FlatList, Dimensions,  Keyboard} from 'react-native';
+import {Platform,NetInfo, StyleSheet, Text, View, TextInput, Image, TouchableOpacity, FlatList, Dimensions,  Keyboard} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import DatePicker from 'react-native-datepicker';
 import {Actions} from 'react-native-router-flux';
@@ -39,8 +39,6 @@ export default class Add extends Component<Props> {
       empid: '',
       empname: '',
       mobileno: '',
-      monthend: '',
-      monthst: '',
       salary: ''
     };
   }
@@ -54,10 +52,12 @@ export default class Add extends Component<Props> {
 
 
   addUser(){
+
      Keyboard.dismiss();
     // var days =  Math.floor(( Date.parse(this.state.leaveto) - Date.parse(this.state.leavefrom) ) / 86400000);
-
-    this.setState({
+ NetInfo.isConnected.fetch().then(isConnected => {
+    if (isConnected == true) {
+      this.setState({
       // noofdays: days
     },()=>{
       // console.log('datasending:'+'empid:'+this.state.empid+':::'+'empname:' +'this.state.empname'+':::'+'leavefrom:'+this.state.leavefrom+':::'+'leaveid:'+ this.state.leaveid+':::'+'leaveto:'+ this.state.leaveto+':::'+'noofdays:'+ this.state.noofdays);
@@ -72,8 +72,6 @@ export default class Add extends Component<Props> {
             empid: this.state.empid,
             empname: this.state.empname,
             mobileno: this.state.mobileno,
-            monthend: this.state.monthend,
-            monthst: this.state.monthst,
             salary: this.state.salary
             }),
     })
@@ -89,12 +87,17 @@ export default class Add extends Component<Props> {
         
       })
       .catch((error) =>{
-        errorMsg='No Network';
+        errorMsg='Unable to add user';
         this.showAlert();
         //console.error(error);
       });
     })
-  }
+    }else{
+      errorMsg='No Network';
+      this.showAlert();
+    }
+  })
+}
 
   showAlert(){
      showMessage({
@@ -107,16 +110,16 @@ export default class Add extends Component<Props> {
     Actions.pop();
   }
 
-  newEndDate(){
-        var dt = new Date(this.state.monthst);
-        dt.setMonth( dt.getMonth() + 2 );
-        console.log(dt);
-        var monthendDate = dt.getFullYear()+ '-' + dt.getMonth() + '-' + dt.getDate();
-        console.log(monthendDate);
-        this.setState({
-          monthend:monthendDate
-        })
-  }
+  // newEndDate(){
+  //       var dt = new Date(this.state.monthst);
+  //       dt.setMonth( dt.getMonth() + 2 );
+  //       console.log(dt);
+  //       var monthendDate = dt.getFullYear()+ '-' + dt.getMonth() + '-' + dt.getDate();
+  //       console.log(monthendDate);
+  //       this.setState({
+  //         monthend:monthendDate
+  //       })
+  // }
 
   validate(){
     if (this.state.empname=='') {
@@ -124,9 +127,6 @@ export default class Add extends Component<Props> {
         this.showAlert();
     } else if (this.state.doj=='') {
       errorMsg='Date of joining cannot be empty';
-      this.showAlert();
-    } else if (this.state.monthst=='') {
-      errorMsg='Salary cycle annot be empty';
       this.showAlert();
     } else if (this.state.salary=='') {
       errorMsg='Salary cannot be empty';
@@ -186,33 +186,6 @@ export default class Add extends Component<Props> {
            <View style={{width:'90%', padding:5, marginTop:10}}>
             <Text>Salary cycle</Text>
           </View>
-          <DatePicker
-            style={{width: '90%', borderRadius:50, borderColor:'#39a4ce', borderWidth:1, marginTop:0}}
-            date={this.state.monthst}
-            mode="date"
-            placeholder="Salary cycle"
-            format="YYYY-MM-DD"
-            minDate="2019-03-01"
-            maxDate="2100-03-01"
-            confirmBtnText="Confirm"
-            cancelBtnText="Cancel"
-            customStyles={{
-              dateIcon: {
-                position: 'absolute',
-                left: 0,
-                top: 4,
-                marginLeft: 0
-              },
-              dateInput: {
-                marginLeft: 36
-              }
-            }}
-            onDateChange={(date) => {
-               this.setState({
-                monthst: date
-              },()=>{this.newEndDate()})
-            }}
-          />
           
           <View style={{width:'90%', padding:5, marginTop:10}}>
             <Text>Salary</Text>

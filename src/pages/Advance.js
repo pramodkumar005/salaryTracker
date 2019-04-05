@@ -7,7 +7,7 @@
  */
 
 import React, {Component} from 'react';
-import {Platform, StyleSheet, Text, View, TextInput, Image, TouchableOpacity, FlatList, Dimensions, Keyboard} from 'react-native';
+import {Platform,NetInfo ,StyleSheet, Text, View, TextInput, Image, TouchableOpacity, FlatList, Dimensions, Keyboard} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import DatePicker from 'react-native-datepicker';
 import {Actions} from 'react-native-router-flux';
@@ -52,7 +52,9 @@ export default class Advance extends Component<Props> {
 
   postAdvance(){
     Keyboard.dismiss();
-    fetch('http://pinakininfo.co.in/Turipati/Admin/data/backendService.php?action=saveUpdateEmployeeAdvanceData',{
+    NetInfo.isConnected.fetch().then(isConnected => {
+      if (isConnected == true) {
+        fetch('http://pinakininfo.co.in/Turipati/Admin/data/backendService.php?action=saveUpdateEmployeeAdvanceData',{
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -83,6 +85,11 @@ export default class Advance extends Component<Props> {
         this.showAlert();
         //console.error(error);
       });
+      }else{
+        errorMsg='No Network';
+          this.showAlert();
+      }
+    })
   }
 
   dashboard(){

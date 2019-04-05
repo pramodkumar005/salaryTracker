@@ -28,7 +28,8 @@ export default class Login extends Component<Props> {
     this.state = { 
       text: 'Useless Placeholder',
       username:'',
-      password:''
+      password:'',
+      loader:false
     };
 
   }
@@ -69,7 +70,7 @@ export default class Login extends Component<Props> {
     console.log('login>>>>>>>'+this.state.username+':::'+this.state.password);
 
     this.setState({
-      // noofdays: days
+      loader: true
     },()=>{
       // console.log('datasending:'+'empid:'+this.state.empid+':::'+'empname:' +'this.state.empname'+':::'+'leavefrom:'+this.state.leavefrom+':::'+'leaveid:'+ this.state.leaveid+':::'+'leaveto:'+ this.state.leaveto+':::'+'noofdays:'+ this.state.noofdays);
     fetch('http://pinakininfo.co.in/Turipati/Admin/data/backendService.php?action=validateUser',{
@@ -88,13 +89,16 @@ export default class Login extends Component<Props> {
       .then((responseJson) => {
         console.log('responseJson>>>>>.'+JSON.stringify(responseJson.responsecode));
         if (responseJson.responsecode=='200') {
-            AsyncStorage.setItem('@MyLogin:key','true');
+            //AsyncStorage.setItem('@MyLogin:key','true');
             console.log('Added successfully');
             Actions.dashboard();
         }else{
            console.log('Invalid username or password');
            errorMsg='Invalid username or password';
            this.showAlert();
+           this.setState({
+            loader:false
+           })
         }
         
       })
@@ -102,6 +106,9 @@ export default class Login extends Component<Props> {
         console.log(error);
         errorMsg='No Network..';
         this.showAlert();
+        this.setState({
+            loader:false
+           })
       });
     })
   }
@@ -124,9 +131,15 @@ export default class Login extends Component<Props> {
         placeholder='Password'
         secureTextEntry={true}
         />
+        {(this.state.loader==false)?
         <TouchableOpacity style={styles.button} onPress={()=>{this.validate()}}>
           <Text style={{color:'white', fontSize:16}}>Login</Text>
         </TouchableOpacity>
+        :
+        <View style={styles.buttonDisabled}>
+          <Text style={{color:'white', fontSize:16}}>Logging in....</Text>
+        </View>
+        }
       </View>
     );
   }
@@ -160,6 +173,16 @@ const styles = StyleSheet.create({
   button: {
     width: '80%',
     backgroundColor: '#39a4ce',
+    borderRadius: 50,
+    marginBottom: 5,
+    paddingLeft: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    height:50
+  },
+   buttonDisabled: {
+    width: '80%',
+    backgroundColor: '#70cbef',
     borderRadius: 50,
     marginBottom: 5,
     paddingLeft: 15,
