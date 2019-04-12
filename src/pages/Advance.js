@@ -139,7 +139,7 @@ export default class Advance extends Component<Props> {
             mode="date"
             placeholder="select date"
             format="YYYY-MM-DD"
-            minDate="2019-01-01"
+            minDate="2015-01-01"
             maxDate="2100-06-01"
             confirmBtnText="Confirm"
             cancelBtnText="Cancel"

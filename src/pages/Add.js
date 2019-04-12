@@ -166,7 +166,7 @@ export default class Add extends Component<Props> {
             mode="date"
             placeholder="Date of joining"
             format="YYYY-MM-DD"
-            minDate="2019-03-01"
+            minDate="2015-03-01"
             maxDate="2100-03-01"
             confirmBtnText="Confirm"
             cancelBtnText="Cancel"

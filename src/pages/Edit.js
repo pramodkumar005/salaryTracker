@@ -192,7 +192,7 @@ export default class Edit extends Component<Props> {
             mode="date"
             placeholder="Date of joining"
             format="YYYY-MM-DD"
-            minDate="2019-03-01"
+            minDate="2015-03-01"
             maxDate="2100-03-01"
             confirmBtnText="Confirm"
             cancelBtnText="Cancel"
@@ -208,36 +208,6 @@ export default class Edit extends Component<Props> {
               }
             }}
             onDateChange={(date) => {this.setState({doj: date})}}
-          />
-           <View style={{width:'90%', padding:5, marginTop:10}}>
-            <Text>Salary cycle</Text>
-          </View>
-          <DatePicker
-            style={{width: '90%', borderRadius:50, borderColor:'#39a4ce', borderWidth:1, marginTop:0}}
-            date={this.state.monthst}
-            mode="date"
-            placeholder="Salary cycle"
-            format="YYYY-MM-DD"
-            minDate="2019-03-01"
-            maxDate="2100-03-01"
-            confirmBtnText="Confirm"
-            cancelBtnText="Cancel"
-            customStyles={{
-              dateIcon: {
-                position: 'absolute',
-                left: 0,
-                top: 4,
-                marginLeft: 0
-              },
-              dateInput: {
-                marginLeft: 36
-              }
-            }}
-            onDateChange={(date) => {
-               this.setState({
-                monthst: date
-              },()=>{this.newEndDate()})
-            }}
           />
           
           <View style={{width:'90%', padding:5, marginTop:10}}>
